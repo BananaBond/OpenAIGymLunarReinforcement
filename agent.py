@@ -46,6 +46,18 @@ class BaseAgent:
         """
 
     @abstractmethod
+    def trained_agent_step(self, reward, state):
+        """A step taken by the trained agent.
+        Args:
+            reward (float): the reward received for taking the last action taken
+            observation (Numpy array): the state observation from the
+                environment's step based, where the agent ended up after the
+                last step
+        Returns:
+            The action the agent is taking.
+        """
+
+    @abstractmethod
     def agent_end(self, reward):
         """Run when the agent terminates.
         Args:

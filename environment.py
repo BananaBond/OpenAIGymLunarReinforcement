@@ -43,12 +43,12 @@ class BaseEnvironment:
         """
 
     @abstractmethod
-    def env_step(self, action):
+    def env_step(self, action, renderEnv):
         """A step taken by the environment.
 
         Args:
             action: The action taken by the agent
-
+            renderEnv: Boolean suggesting whether to render or not
         Returns:
             (float, state, Boolean): a tuple of the reward, state observation,
                 and boolean indicating if it's terminal.

@@ -38,7 +38,7 @@ class RLGlue:
         Returns:
             tuple: (state, action)
         """
-        
+
         self.total_reward = 0.0
         self.num_steps = 1
 
@@ -96,7 +96,7 @@ class RLGlue:
 
         return this_observation
 
-    def rl_env_step(self, action):
+    def rl_env_step(self, action, renderEnv):
         """Step taken by the environment based on action from agent
 
         Args:
@@ -115,7 +115,8 @@ class RLGlue:
             self.num_episodes += 1
         else:
             self.num_steps += 1
-
+            if renderEnv:
+                self.environment.render()
         return ro
 
     def rl_step(self):
@@ -127,7 +128,7 @@ class RLGlue:
                 last action, boolean indicating termination
         """
 
-        (reward, last_state, term) = self.environment.env_step(self.last_action)
+        (reward, last_state, term) = self.environment.env_step(self.last_action, False)
 
         self.total_reward += reward;
 
@@ -141,6 +142,28 @@ class RLGlue:
             roat = (reward, last_state, self.last_action, term)
 
         return roat
+
+    def trained_rl_step(self):
+        """Step taken by RLGlue, takes environment step and either step or
+            end by agent.
+
+        Returns:
+            (float, state, action, Boolean): reward, last state observation,
+                last action, boolean indicating termination
+        """
+
+        (reward, last_state, term) = self.environment.env_step(self.last_action, True)
+        self.total_reward += reward
+
+        if term:
+            roat = (reward, last_state, None, term)
+        else:
+            self.num_steps += 1
+            self.last_action = self.agent.trained_agent_step(reward, last_state)
+            roat = (reward, last_state, self.last_action, term)
+
+        return roat
+
 
     def rl_cleanup(self):
         """Cleanup done at end of experiment."""
@@ -189,6 +212,27 @@ class RLGlue:
                                      (self.num_steps < max_steps_this_episode)):
             rl_step_result = self.rl_step()
             is_terminal = rl_step_result[3]
+
+        return is_terminal
+
+    def trained_rl_episode(self, max_steps_this_episode):
+        """Runs an RLGlue episode
+
+        Args:
+            max_steps_this_episode (Int): the maximum steps for the experiment to run in an episode
+
+        Returns:
+            Boolean: if the episode should terminate
+        """
+        is_terminal = False
+
+        self.rl_env_start()
+
+        while (not is_terminal) and ((max_steps_this_episode == 0) or
+                                     (self.num_steps < max_steps_this_episode)):
+            rl_step_result = self.trained_rl_step()
+            is_terminal = rl_step_result[3]
+
 
         return is_terminal
 

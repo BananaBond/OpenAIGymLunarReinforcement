@@ -35,7 +35,9 @@ class LunarLanderEnvironment(BaseEnvironment):
         # return first state observation from the environment
         return self.reward_obs_term[1]
 
-    def env_step(self, action):
+
+
+    def env_step(self, action, renderEnv):
         """A step taken by the environment.
 
         Args:
@@ -50,5 +52,6 @@ class LunarLanderEnvironment(BaseEnvironment):
         current_state, reward, is_terminal, _ = self.env.step(action)
 
         self.reward_obs_term = (reward, current_state, is_terminal)
-
+        if renderEnv:
+            self.env.render()
         return self.reward_obs_term
